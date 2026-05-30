@@ -1,6 +1,6 @@
 # Home
 
-Welcome to the documentation starter template.
+Welcome to the documentation.
 
 ## Quick Links
 

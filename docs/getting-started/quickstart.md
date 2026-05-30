@@ -23,7 +23,7 @@ cd my-project
 
 ## Copy the starter config
 
-Copy `mkdocs.yml` and the `docs/` directory from this starter template into your project root.
+Copy `mkdocs.yml` and the `docs/` directory into your project root.
 
 ## Run locally
 
