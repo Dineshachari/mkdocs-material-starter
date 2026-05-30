@@ -1,0 +1,90 @@
+site_name: My Project Docs
+site_description: Documentation for my project
+# site_url: https://docs.example.com
+# repo_url: https://github.com/your-org/your-repo
+# repo_name: your-org/your-repo
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  # Admonitions (note, warning, tip, etc.)
+  - admonition
+  - pymdownx.details
+
+  # Code blocks with syntax highlighting
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+
+  # Superfences — MUST use mermaid2.fence_mermaid, NOT pymdownx.superfences.fence_mermaid
+  # The pymdownx version does NOT work and is a common gotcha
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid
+
+  # Tabbed content
+  - pymdownx.tabbed:
+      alternate_style: true
+
+  # Material emoji/icons — required for :material-icon-name: syntax
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+  # Markdown inside HTML blocks — required for grid cards with icons
+  - attr_list
+  - md_in_html
+  - tables
+  - def_list
+  - toc:
+      permalink: true
+  - footnotes
+
+# mermaid2 plugin — required for Mermaid diagram rendering
+plugins:
+  - search
+  - mermaid2
+
+# extra:
+#   social:
+#     - icon: fontawesome/brands/github
+#       link: https://github.com/your-org/your-repo
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - getting-started/quickstart.md
+  - Architecture:
+    - architecture/overview.md
+  - Examples:
+    - examples/mermaid-diagrams.md
+    - examples/components.md
