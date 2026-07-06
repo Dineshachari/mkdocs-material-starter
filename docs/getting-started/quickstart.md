@@ -5,7 +5,7 @@
 === "pip"
 
     ```bash
-    pip install mkdocs-material mdx-mermaid
+    pip install mkdocs-material mkdocs-mermaid2-plugin
     ```
 
 === "Homebrew"
