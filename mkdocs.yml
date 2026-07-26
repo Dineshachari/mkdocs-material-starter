@@ -6,16 +6,25 @@ site_description: Documentation for my project
 
 theme:
   name: material
+
+  # No webfont. The CalmKit stylesheet sets a rounded system stack that resolves to SF Pro Rounded
+  # on Apple platforms with no download at all. Loading Roboto would add a third-party request on
+  # every page AND document one typeface while displaying another.
+  font: false
+
   palette:
-    - scheme: default
-      primary: indigo
-      accent: deep purple
+    # Follows the OS appearance first, with a toggle to override. Material's default is
+    # toggle-only, which ignores a preference the reader has already expressed.
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      # `primary` and `accent` are deliberately NOT set. The CalmKit stylesheet overrides
+      # --md-primary-fg-color and friends with derived, contrast-checked values; a named colour
+      # here would be dead config that looks authoritative. See docs/stylesheets/calmkit.css.
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-    - scheme: slate
-      primary: indigo
-      accent: deep purple
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
@@ -31,6 +40,11 @@ theme:
     - content.tabs.link
   icon:
     repo: fontawesome/brands/github
+
+# The CalmKit design language. Every colour in here is derived from the design system's tokens and
+# moved only as far as WCAG requires, with the measured ratio recorded beside it.
+extra_css:
+  - stylesheets/calmkit.css
 
 markdown_extensions:
   # Admonitions (note, warning, tip, etc.)
@@ -85,6 +99,8 @@ nav:
     - getting-started/quickstart.md
   - Architecture:
     - architecture/overview.md
+  - Design System:
+    - design-system/calmkit.md
   - Examples:
     - examples/mermaid-diagrams.md
     - examples/components.md

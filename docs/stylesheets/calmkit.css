@@ -1,0 +1,532 @@
+/* CalmKit — the design language for this starter.
+ *
+ * CalmKit is a design system built for an ADHD focus tool, where an aggressive interface is not a
+ * style choice but a cost. Its central rule is that a theme may change the LOOK and nothing else:
+ * it may not make the interface louder, faster, or more alarming.
+ *
+ * That rule is why this file exists rather than a `primary: indigo` line in mkdocs.yml. Material's
+ * defaults are perfectly good and they are also generic, and two of them actively conflict with
+ * the system:
+ *
+ *   1. `!!! danger` renders in alarm red (#ff5252). CalmKit forbids alarm red for anything the
+ *      reader has to interpret — red reads as "you failed". It is remapped to soft coral below.
+ *   2. The indigo/deep-purple pairing has no relationship to the tokens. A docs site whose palette
+ *      contradicts the system it documents is worse than an unstyled one.
+ *
+ * ## Every colour here is derived, not picked
+ *
+ * The base tokens are CalmKit's authored values. Anything that had to clear a WCAG ratio was moved
+ * toward black or white by the SMALLEST amount that clears it, and the measured ratio is recorded
+ * in the comment. That minimality matters: the coral needs 4% darkening to clear 3:1 where the
+ * amber needs 24%, and applying the amber's correction to the coral would turn a soft coral into a
+ * brick red — darker, heavier, and more alarming than the value the system exists to avoid.
+ *
+ * Base tokens:
+ *   calmNudge #3399DB   ragGreen #57B87D   ragAmber #EDBD5C
+ *   ragCoral  #F27373   windDownAmber #F2B86B
+ *
+ * Ratios were measured against #FFFFFF (light) and #1E1E1E (dark).
+ */
+
+/* ==========================================================================
+   Type
+   ========================================================================== */
+
+:root {
+  /* `ui-rounded` resolves to SF Pro Rounded on Apple platforms with no download, and is skipped
+     silently elsewhere. Rounded is a deliberate choice — friendly without being childish — which
+     is why generic "don't use rounded system fonts" advice does not apply here.
+
+     mkdocs.yml sets `font: false` so Material does not load Roboto from Google Fonts. That keeps
+     the page free of a third-party request and means the docs render in the same family the
+     product does, rather than documenting one typeface while displaying another. */
+  --ck-font: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  --ck-font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+
+  --md-text-font: var(--ck-font);
+  --md-code-font: var(--ck-font-mono);
+}
+
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+
+:root {
+  /* Authored, unmodified. Use these when a decorative or non-text role needs the true hue. */
+  --ck-calm-nudge: #3399db;
+  --ck-rag-green: #57b87d;
+  --ck-rag-amber: #edbd5c;
+  --ck-rag-coral: #f27373;
+  --ck-wind-down: #f2b86b;
+
+  /* Geometry. A 4/8pt grid, and a card radius of 16px. */
+  --ck-radius-xs: 4px;
+  --ck-radius-sm: 8px;
+  --ck-radius-md: 12px;
+  --ck-radius-lg: 16px;
+
+  /* Motion is slow on purpose: it lives at the edge of attention, and anything fast enough to
+     grab focus competes with what the reader is actually doing. The curve is SwiftUI's symmetric
+     easeInOut, which every CalmKit animation uses. */
+  --ck-duration: 350ms;
+  --ck-ease: cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+/* ==========================================================================
+   Light
+   ========================================================================== */
+
+[data-md-color-scheme="default"] {
+  /* Header and nav background, which Material pairs with white foreground text.
+     calmNudge darkened 19% — white on it measures 4.55:1. The raw token would be 2.6:1. */
+  --md-primary-fg-color: #297cb1;
+  --md-primary-fg-color--light: #3399db;
+  --md-primary-fg-color--dark: #1f5f88;
+  --md-primary-bg-color: #ffffff;
+  --md-primary-bg-color--light: #ffffffb3;
+
+  /* Accent — hover and active states. windDownAmber darkened 39% for 4.51:1. */
+  --md-accent-fg-color: #947041;
+  --md-accent-fg-color--transparent: #f2b86b1a;
+
+  /* Links. Same value as primary: 4.55:1 on white, which body text requires. */
+  --md-typeset-a-color: #297cb1;
+}
+
+/* ==========================================================================
+   Dark
+   ========================================================================== */
+
+[data-md-color-scheme="slate"] {
+  /* Anchored to the macOS window background CalmKit derives from, rather than Material's default
+     blue-grey, so a dark page matches the product's dark surfaces. */
+  --md-default-bg-color: #1e1e1e;
+  --md-default-bg-color--light: #282828;
+  --md-default-fg-color: #ffffffd8;
+  --md-default-fg-color--light: #ffffff8c;
+  --md-default-fg-color--lighter: #ffffff3f;
+  --md-default-fg-color--lightest: #ffffff19;
+
+  /* The header is much darker here than in light mode, and that is the point rather than an
+     oversight. Carrying the light-mode #297CB1 across renders a bright blue band across the top of
+     a near-black page — legible (white on it is 4.55:1) and loud, which is exactly what a system
+     built around not shouting should not do.
+     
+     calmNudge darkened 55%: white on it is 10.18:1, while against the page it is only 1.64:1. So
+     it reads as a quiet band that is clearly a header, without becoming the brightest thing on
+     screen. Keeping a colour legible is the floor, not the goal. */
+  --md-primary-fg-color: #174563;
+  --md-primary-fg-color--light: #297cb1;
+  --md-primary-fg-color--dark: #0e2b3d;
+
+  --md-accent-fg-color: #f2b86b;
+  --md-accent-fg-color--transparent: #f2b86b26;
+
+  --md-typeset-a-color: #3399db;
+
+  --md-code-bg-color: #161616;
+  --md-code-fg-color: #ffffffd8;
+}
+
+/* ==========================================================================
+   Admonitions — where the calm law becomes visible
+   ========================================================================== */
+
+/* `!!! danger` ships as alarm red. That is the one override in this file that is not taste.
+ *
+ * CalmKit's premise is that this kind of interface must never tell a reader they failed, and red
+ * says exactly that. The RAG palette resolves its own "red" to soft coral for the same reason.
+ * A callout is something the reader has to interpret, so it takes the coral.
+ *
+ * Note the honest limit: a genuinely DESTRUCTIVE action — deleting something irreversible — should
+ * still look alarming, because warning about consequences is useful. The distinction is between
+ * an action someone is about to take and a state being reported to them. A prose admonition is
+ * always the second kind.
+ */
+
+:root {
+  /* Material ships `--md-admonition-icon--*` masks; only the colours are overridden here. */
+}
+
+[data-md-color-scheme="default"] {
+  /* Each derived to clear 3:1 against #FFFFFF — WCAG 1.4.11 for a non-text element. */
+  --ck-adm-note: #3399db;    /* calmNudge, unmodified — 3.12:1 */
+  --ck-adm-tip: #4ea670;     /* ragGreen darkened 11% — 3.01:1 */
+  --ck-adm-warn: #b49046;    /* ragAmber darkened 24% — 3.00:1 */
+  --ck-adm-danger: #e86e6e;  /* ragCoral darkened 4% — 3.04:1. Coral, never red. */
+  --ck-adm-example: #b88c51; /* windDownAmber darkened 24% — 3.04:1 */
+}
+
+[data-md-color-scheme="slate"] {
+  /* All five clear 3:1 on #1E1E1E unmodified (5.33 to 9.55), so none are corrected. Correcting a
+     colour that already passes is how a palette loses its character. */
+  --ck-adm-note: #3399db;
+  --ck-adm-tip: #57b87d;
+  --ck-adm-warn: #edbd5c;
+  --ck-adm-danger: #f27373;
+  --ck-adm-example: #f2b86b;
+}
+
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: var(--ck-radius-md);
+  /* Soft and downward — calm depth, never a hard drop shadow. */
+  box-shadow: 0 2px 8px #0000000f;
+}
+
+.md-typeset .admonition.note,
+.md-typeset details.note,
+.md-typeset .admonition.abstract,
+.md-typeset details.abstract,
+.md-typeset .admonition.summary,
+.md-typeset details.summary,
+.md-typeset .admonition.tldr,
+.md-typeset details.tldr,
+.md-typeset .admonition.info,
+.md-typeset details.info,
+.md-typeset .admonition.todo,
+.md-typeset details.todo,
+.md-typeset .admonition.question,
+.md-typeset details.question,
+.md-typeset .admonition.help,
+.md-typeset details.help,
+.md-typeset .admonition.faq,
+.md-typeset details.faq {
+  border-color: var(--ck-adm-note);
+}
+
+.md-typeset .admonition.note:focus-within,
+.md-typeset details.note:focus-within,
+.md-typeset .admonition.abstract:focus-within,
+.md-typeset details.abstract:focus-within,
+.md-typeset .admonition.summary:focus-within,
+.md-typeset details.summary:focus-within,
+.md-typeset .admonition.tldr:focus-within,
+.md-typeset details.tldr:focus-within,
+.md-typeset .admonition.info:focus-within,
+.md-typeset details.info:focus-within,
+.md-typeset .admonition.todo:focus-within,
+.md-typeset details.todo:focus-within,
+.md-typeset .admonition.question:focus-within,
+.md-typeset details.question:focus-within,
+.md-typeset .admonition.help:focus-within,
+.md-typeset details.help:focus-within,
+.md-typeset .admonition.faq:focus-within,
+.md-typeset details.faq:focus-within {
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--ck-adm-note) 12%, transparent);
+}
+
+.md-typeset .note > .admonition-title,
+.md-typeset .note > summary,
+.md-typeset .abstract > .admonition-title,
+.md-typeset .abstract > summary,
+.md-typeset .summary > .admonition-title,
+.md-typeset .summary > summary,
+.md-typeset .tldr > .admonition-title,
+.md-typeset .tldr > summary,
+.md-typeset .info > .admonition-title,
+.md-typeset .info > summary,
+.md-typeset .todo > .admonition-title,
+.md-typeset .todo > summary,
+.md-typeset .question > .admonition-title,
+.md-typeset .question > summary,
+.md-typeset .help > .admonition-title,
+.md-typeset .help > summary,
+.md-typeset .faq > .admonition-title,
+.md-typeset .faq > summary {
+  background-color: color-mix(in srgb, var(--ck-adm-note) 12%, transparent);
+}
+
+.md-typeset .note > .admonition-title::before,
+.md-typeset .note > summary::before,
+.md-typeset .abstract > .admonition-title::before,
+.md-typeset .abstract > summary::before,
+.md-typeset .summary > .admonition-title::before,
+.md-typeset .summary > summary::before,
+.md-typeset .tldr > .admonition-title::before,
+.md-typeset .tldr > summary::before,
+.md-typeset .info > .admonition-title::before,
+.md-typeset .info > summary::before,
+.md-typeset .todo > .admonition-title::before,
+.md-typeset .todo > summary::before,
+.md-typeset .question > .admonition-title::before,
+.md-typeset .question > summary::before,
+.md-typeset .help > .admonition-title::before,
+.md-typeset .help > summary::before,
+.md-typeset .faq > .admonition-title::before,
+.md-typeset .faq > summary::before {
+  background-color: var(--ck-adm-note);
+}
+
+.md-typeset .admonition.tip,
+.md-typeset details.tip,
+.md-typeset .admonition.hint,
+.md-typeset details.hint,
+.md-typeset .admonition.important,
+.md-typeset details.important,
+.md-typeset .admonition.success,
+.md-typeset details.success,
+.md-typeset .admonition.check,
+.md-typeset details.check,
+.md-typeset .admonition.done,
+.md-typeset details.done {
+  border-color: var(--ck-adm-tip);
+}
+
+.md-typeset .admonition.tip:focus-within,
+.md-typeset details.tip:focus-within,
+.md-typeset .admonition.hint:focus-within,
+.md-typeset details.hint:focus-within,
+.md-typeset .admonition.important:focus-within,
+.md-typeset details.important:focus-within,
+.md-typeset .admonition.success:focus-within,
+.md-typeset details.success:focus-within,
+.md-typeset .admonition.check:focus-within,
+.md-typeset details.check:focus-within,
+.md-typeset .admonition.done:focus-within,
+.md-typeset details.done:focus-within {
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--ck-adm-tip) 12%, transparent);
+}
+
+.md-typeset .tip > .admonition-title,
+.md-typeset .tip > summary,
+.md-typeset .hint > .admonition-title,
+.md-typeset .hint > summary,
+.md-typeset .important > .admonition-title,
+.md-typeset .important > summary,
+.md-typeset .success > .admonition-title,
+.md-typeset .success > summary,
+.md-typeset .check > .admonition-title,
+.md-typeset .check > summary,
+.md-typeset .done > .admonition-title,
+.md-typeset .done > summary {
+  background-color: color-mix(in srgb, var(--ck-adm-tip) 12%, transparent);
+}
+
+.md-typeset .tip > .admonition-title::before,
+.md-typeset .tip > summary::before,
+.md-typeset .hint > .admonition-title::before,
+.md-typeset .hint > summary::before,
+.md-typeset .important > .admonition-title::before,
+.md-typeset .important > summary::before,
+.md-typeset .success > .admonition-title::before,
+.md-typeset .success > summary::before,
+.md-typeset .check > .admonition-title::before,
+.md-typeset .check > summary::before,
+.md-typeset .done > .admonition-title::before,
+.md-typeset .done > summary::before {
+  background-color: var(--ck-adm-tip);
+}
+
+.md-typeset .admonition.warning,
+.md-typeset details.warning,
+.md-typeset .admonition.caution,
+.md-typeset details.caution,
+.md-typeset .admonition.attention,
+.md-typeset details.attention {
+  border-color: var(--ck-adm-warn);
+}
+
+.md-typeset .admonition.warning:focus-within,
+.md-typeset details.warning:focus-within,
+.md-typeset .admonition.caution:focus-within,
+.md-typeset details.caution:focus-within,
+.md-typeset .admonition.attention:focus-within,
+.md-typeset details.attention:focus-within {
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--ck-adm-warn) 12%, transparent);
+}
+
+.md-typeset .warning > .admonition-title,
+.md-typeset .warning > summary,
+.md-typeset .caution > .admonition-title,
+.md-typeset .caution > summary,
+.md-typeset .attention > .admonition-title,
+.md-typeset .attention > summary {
+  background-color: color-mix(in srgb, var(--ck-adm-warn) 12%, transparent);
+}
+
+.md-typeset .warning > .admonition-title::before,
+.md-typeset .warning > summary::before,
+.md-typeset .caution > .admonition-title::before,
+.md-typeset .caution > summary::before,
+.md-typeset .attention > .admonition-title::before,
+.md-typeset .attention > summary::before {
+  background-color: var(--ck-adm-warn);
+}
+
+.md-typeset .admonition.danger,
+.md-typeset details.danger,
+.md-typeset .admonition.error,
+.md-typeset details.error,
+.md-typeset .admonition.failure,
+.md-typeset details.failure,
+.md-typeset .admonition.fail,
+.md-typeset details.fail,
+.md-typeset .admonition.missing,
+.md-typeset details.missing,
+.md-typeset .admonition.bug,
+.md-typeset details.bug {
+  border-color: var(--ck-adm-danger);
+}
+
+.md-typeset .admonition.danger:focus-within,
+.md-typeset details.danger:focus-within,
+.md-typeset .admonition.error:focus-within,
+.md-typeset details.error:focus-within,
+.md-typeset .admonition.failure:focus-within,
+.md-typeset details.failure:focus-within,
+.md-typeset .admonition.fail:focus-within,
+.md-typeset details.fail:focus-within,
+.md-typeset .admonition.missing:focus-within,
+.md-typeset details.missing:focus-within,
+.md-typeset .admonition.bug:focus-within,
+.md-typeset details.bug:focus-within {
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--ck-adm-danger) 12%, transparent);
+}
+
+.md-typeset .danger > .admonition-title,
+.md-typeset .danger > summary,
+.md-typeset .error > .admonition-title,
+.md-typeset .error > summary,
+.md-typeset .failure > .admonition-title,
+.md-typeset .failure > summary,
+.md-typeset .fail > .admonition-title,
+.md-typeset .fail > summary,
+.md-typeset .missing > .admonition-title,
+.md-typeset .missing > summary,
+.md-typeset .bug > .admonition-title,
+.md-typeset .bug > summary {
+  background-color: color-mix(in srgb, var(--ck-adm-danger) 12%, transparent);
+}
+
+.md-typeset .danger > .admonition-title::before,
+.md-typeset .danger > summary::before,
+.md-typeset .error > .admonition-title::before,
+.md-typeset .error > summary::before,
+.md-typeset .failure > .admonition-title::before,
+.md-typeset .failure > summary::before,
+.md-typeset .fail > .admonition-title::before,
+.md-typeset .fail > summary::before,
+.md-typeset .missing > .admonition-title::before,
+.md-typeset .missing > summary::before,
+.md-typeset .bug > .admonition-title::before,
+.md-typeset .bug > summary::before {
+  background-color: var(--ck-adm-danger);
+}
+
+.md-typeset .admonition.example,
+.md-typeset details.example,
+.md-typeset .admonition.quote,
+.md-typeset details.quote,
+.md-typeset .admonition.cite,
+.md-typeset details.cite {
+  border-color: var(--ck-adm-example);
+}
+
+.md-typeset .admonition.example:focus-within,
+.md-typeset details.example:focus-within,
+.md-typeset .admonition.quote:focus-within,
+.md-typeset details.quote:focus-within,
+.md-typeset .admonition.cite:focus-within,
+.md-typeset details.cite:focus-within {
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--ck-adm-example) 12%, transparent);
+}
+
+.md-typeset .example > .admonition-title,
+.md-typeset .example > summary,
+.md-typeset .quote > .admonition-title,
+.md-typeset .quote > summary,
+.md-typeset .cite > .admonition-title,
+.md-typeset .cite > summary {
+  background-color: color-mix(in srgb, var(--ck-adm-example) 12%, transparent);
+}
+
+.md-typeset .example > .admonition-title::before,
+.md-typeset .example > summary::before,
+.md-typeset .quote > .admonition-title::before,
+.md-typeset .quote > summary::before,
+.md-typeset .cite > .admonition-title::before,
+.md-typeset .cite > summary::before {
+  background-color: var(--ck-adm-example);
+}
+
+/* ==========================================================================
+   Surfaces
+   ========================================================================== */
+
+/* One wall is the rule: a card provides the border and the shadow together, and nesting a bordered
+   surface inside another reads as double-walled. Busy is the specific failure this system avoids. */
+
+.md-typeset code {
+  border-radius: var(--ck-radius-xs);
+}
+
+.md-typeset pre > code,
+.md-typeset .highlight {
+  border-radius: var(--ck-radius-sm);
+}
+
+.md-typeset table:not([class]) {
+  border-radius: var(--ck-radius-sm);
+  overflow: hidden;
+  box-shadow: 0 1px 4px #0000000f;
+}
+
+.md-typeset table:not([class]) th {
+  font-weight: 600;
+}
+
+/* Grid cards, if the page uses them. */
+.md-typeset .grid.cards > ul > li {
+  border-radius: var(--ck-radius-lg);
+  transition: box-shadow var(--ck-duration) var(--ck-ease),
+              transform var(--ck-duration) var(--ck-ease);
+}
+
+.md-typeset .grid.cards > ul > li:hover {
+  box-shadow: 0 4px 12px #0000001f;
+  /* A 2% lift, not a jump. */
+  transform: scale(1.01);
+}
+
+/* ==========================================================================
+   Motion
+   ========================================================================== */
+
+/* Reduce Motion is a hard OFF, not a slowdown.
+ *
+ * In CalmKit's Swift implementation this is structural: every animation builder returns an optional
+ * and yields nil, so a caller cannot forget the gate. CSS has no equivalent, so the gate lives here
+ * at the top level and covers everything — including Material's own transitions, which is the point.
+ * A reader who asked for no motion should not have to trust that each individual rule remembered. */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
+
+  .md-typeset .grid.cards > ul > li:hover {
+    /* The hover STATE still applies — it just arrives instantly. Suppressing motion is not the
+       same as suppressing feedback. But the scale is motion for its own sake, so it goes. */
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   Focus
+   ========================================================================== */
+
+/* A visible focus ring is not optional, and Material's default is easy to lose against a tinted
+   header. 2px at the accent colour, with an offset so it reads as a ring rather than a border. */
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+  border-radius: var(--ck-radius-xs);
+}
