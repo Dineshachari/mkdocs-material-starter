@@ -32,16 +32,37 @@
    Type
    ========================================================================== */
 
+/* Nunito, self-hosted, variable 400–700, latin subset (39 KB). See docs/fonts/README.md.
+ *
+ * Necessary because `ui-rounded` DOES NOT RESOLVE IN CHROME — tested with an identical fallback
+ * chain, it renders at exactly the same width as plain `-apple-system`, and `"SF Pro Rounded"` by
+ * name does not resolve either. So without a real webfont, the rounded face this stylesheet claims
+ * never appears on the majority browser, and the site reads as the system sans — which is also what
+ * Material's default looks like. This starter shipped that way at first; the gap was found when the
+ * same stack was measured on CalmKit's own docs.
+ *
+ * `ui-rounded` still leads: where it works (Safari), it gives the genuine SF Pro Rounded with no
+ * download at all. Nunito sits behind it for everyone else. `font-display: swap` so text stays
+ * readable during the load — a flash of fallback beats invisible text, and for 39 KB same-origin
+ * the window is small. */
+@font-face {
+  font-family: "Nunito";
+  src: url("../fonts/nunito-var-latin.woff2") format("woff2-variations"),
+       url("../fonts/nunito-var-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  /* `ui-rounded` resolves to SF Pro Rounded on Apple platforms with no download, and is skipped
-     silently elsewhere. Rounded is a deliberate choice — friendly without being childish — which
-     is why generic "don't use rounded system fonts" advice does not apply here.
+  /* Rounded is a deliberate choice — friendly without being childish — which is why generic
+     "don't use rounded system fonts" advice does not apply here.
 
      mkdocs.yml sets `font: false` so Material does not load Roboto from Google Fonts. That keeps
      the page free of a third-party request and means the docs render in the same family the
      product does, rather than documenting one typeface while displaying another. */
-  --ck-font: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    sans-serif;
+  --ck-font: ui-rounded, "SF Pro Rounded", "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
   --ck-font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
 
   --md-text-font: var(--ck-font);
